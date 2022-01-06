@@ -120,9 +120,13 @@ body {
     margin-right: 15px;
 }
 
+.textbox {
+    width: 100%;
+}
+
 .textbox textarea {
     box-sizing: border-box;
-    width: 820px;
+    width: 100%;
     border-radius: 10px;
     border: none;
     resize: none;
@@ -181,4 +185,11 @@ textarea:focus {
 
 .cancel-button {
     background: #ff6c6c;
+}
+
+/* Responsive */
+@media only screen and (max-width: 900px) {
+    .chat-box {
+        width: 90%;
+    }
 }
