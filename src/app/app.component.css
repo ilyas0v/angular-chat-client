@@ -46,7 +46,13 @@ body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
+}
+
+.exit-button {
+    padding: 5px 10px;
+    background-color: red;
+    color: white;
 }
 
 .messages {
@@ -222,6 +228,10 @@ textarea:focus {
 @media only screen and (max-width: 900px) {
     .chat-box {
         width: 90%;
+    }
+
+    .login {
+        flex-direction: column;
     }
 }
 

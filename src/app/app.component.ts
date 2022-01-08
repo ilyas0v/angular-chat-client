@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Howl, Howler } from 'howler';
 import * as moment from 'moment';
 import { SocketioService } from './services/socketio.service';
 
@@ -22,6 +23,11 @@ export class AppComponent {
 			{
 				this.messages.push({sender: message.sender, content: message.content, time: message.time, isImage: message.isImage, isSystemMessage: message.isSystemMessage});
 				this.scrollToBottom();
+
+				if(message.sender != this.nickname)
+				{
+					this.sound.play();
+				}
 			}
 		})
 
@@ -38,6 +44,14 @@ export class AppComponent {
 			.then((res) => {
 				this.messages = res.messages;
 			});
+
+		this.sound = new Howl({ src: ['assets/sounds/new_message.mp3'], html5: true });
+
+		if(this.nickname)
+		{
+			this.joined = true;
+			this.scrollToBottom();
+		}
 	}
 
 	ngOnDestroy()
@@ -49,6 +63,8 @@ export class AppComponent {
 	[
 	
     ];
+
+	public sound: any;
 
 	public userCount = '0';
 
@@ -109,7 +125,9 @@ export class AppComponent {
 
 	public scrollToBottom(): void 
 	{
-		(document.getElementById('messages') || document.body).scrollTop = (document.getElementById('messages') || document.body).scrollHeight;
+		setTimeout(function () {
+			(document.getElementById('messages') || document.body).scrollTop = (document.getElementById('messages') || document.body).scrollHeight;
+		}, 300);
 	}
 
 
@@ -133,5 +151,12 @@ export class AppComponent {
 			localStorage.setItem('chat_nickname', nickname);
 			this.joined = true;
 		}
+	}
+
+	public exitChat()
+	{
+		localStorage.removeItem('chat_nickname');
+		location.reload();
+		return true;
 	}
 }
