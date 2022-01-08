@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 
 import { AppComponent } from './app.component';
+import { SocketioService } from './services/socketio.service';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,7 @@ import { AppComponent } from './app.component';
     BrowserModule,
     FormsModule
   ],
-  providers: [],
+  providers: [SocketioService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -11,6 +11,11 @@
 	<div class="background-green"></div>
 	<div class="background-gray"></div>
 
+	<div class="login" *ngIf="!joined">
+		<input type="text" placeholder="Your name" class="nickname" [(ngModel)]="nickname">
+		<input type="submit" value="Start" (click) = "joinChat()">
+	</div>
+
 	<div class="image-preview" style="display:{{ imagePreviewSrc ? 'flex': 'none'}}">
 		<img [src]="imagePreviewSrc || 'http://placehold.it/180'">
 		<div class="image-preview-buttons">
@@ -49,14 +54,14 @@
 	<div class="container">
 		<div class="chat-box">
 			<div class="messages-top">
-				<p><b>11</b> people on the chat</p>
+				<p><b>{{ userCount }}</b> people on the chat</p>
 			</div>
 
 			<div class="messages" id="messages">
-				<div class="single-message-wrapper {{ message.my ? 'my-message' : '' }}" *ngFor="let message of getMessages()">
+				<div class="single-message-wrapper {{ message.isSystemMessage === true ? 'system-message' : (message.sender === nickname ? 'my-message' : '') }}" *ngFor="let message of getMessages()">
 					<div class="message">
-						<p class="message-text" *ngIf="!message.isImage"><b class="message-owner">Test Testov:</b> &nbsp;&nbsp; {{ message.content }}</p>
-						<p class="message-text" *ngIf="message.isImage"><b class="message-owner">Test Testov:</b> &nbsp;&nbsp; <img [src]="message.content" (click) = 'openImage(message.content)' style="max-width: 40%;"></p>
+						<p class="message-text" *ngIf="!message.isImage"><b class="message-owner" *ngIf="!message.isSystemMessage">{{ message.sender }}:</b> &nbsp;&nbsp; {{ message.content }}</p>
+						<p class="message-text" *ngIf="message.isImage"><b class="message-owner">{{ message.sender }}:</b> &nbsp;&nbsp; <img [src]="message.content" (click) = 'openImage(message.content)' style="max-width: 40%;"></p>
 						<p class="message-time">{{ message.time }}</p>
 					</div>
 				</div>

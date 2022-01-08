@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import * as moment from 'moment';
+import { SocketioService } from './services/socketio.service';
 
 @Component({
   selector: 'app-root',
@@ -11,29 +12,41 @@ export class AppComponent {
 
     title = 'ChatAppClient';
 
-    private messages = 
+	constructor(private socketService: SocketioService) { }
+
+	ngOnInit()
+	{
+		this.socketService.setupSocketConnection();
+		this.socketService.getNewMessage().subscribe((message: any) => {
+			if(message.sender && message.content)
+			{
+				this.messages.push({sender: message.sender, content: message.content, time: message.time, isImage: message.isImage, isSystemMessage: message.isSystemMessage});
+				this.scrollToBottom();
+			}
+		})
+
+		this.socketService.getUsersCount().subscribe((count: string) => {
+			this.userCount = count;
+		});
+
+		this.nickname = localStorage.getItem('chat_nickname') || '';
+	}
+
+	ngOnDestroy()
+	{
+		this.socketService.disconnect();
+	}
+
+    private messages: any = 
 	[
-        {
-            content: 'Test',
-            time: '17:00',
-			my: 1,
-			isImage: false
-        },
-        {
-			content: 'Test',
-			time: '17:00',
-			my: 0,
-			isImage: false
-        },
-        {
-			content: 'Test',
-			time: '17:00',
-			my: 0,
-			isImage: false
-        }
+	
     ];
 
+	public userCount = '0';
+
 	public message = '';
+	public nickname = '';
+	public joined = false;
 	public imagePreviewSrc: any = '';
 	public openedImageSrc: any = '';
 
@@ -51,15 +64,9 @@ export class AppComponent {
     {
         if(event.key == 'Enter')
 		{
-			if(this.message.trim().length > 0)
+			if(this.message.trim().length > 0 || this.nickname.length > 0)
 			{
-				this.messages.push({
-					content: this.message.trim(),
-					time: this.getCurrentTime(),
-					my: 1,
-					isImage: false
-				});
-	
+				this.socketService.emit('message', {sender: this.nickname, content: this.message});
 				this.message = '';
 			}
 		}
@@ -86,12 +93,7 @@ export class AppComponent {
 
 	public sendImageUpload(event: any): void
 	{
-		this.messages.push({
-			content: this.imagePreviewSrc,
-			time: this.getCurrentTime(),
-			my: 1,
-			isImage: true
-		});
+		this.socketService.emit('message', { sender: this.nickname, content: this.imagePreviewSrc, isImage: true});
 
 		this.imagePreviewSrc = '';
 		this.scrollToBottom();
@@ -111,5 +113,17 @@ export class AppComponent {
 	public closeImage(): void 
 	{
 		this.openedImageSrc = '';
+	}
+
+	public joinChat()
+	{
+		var nickname = this.nickname.trim();
+
+		if(nickname.length > 0)
+		{
+			this.socketService.emit('user_join', nickname);
+			localStorage.setItem('chat_nickname', nickname);
+			this.joined = true;
+		}
 	}
 }
