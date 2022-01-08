@@ -35,6 +35,10 @@ export class AppComponent {
 			this.userCount = count;
 		});
 
+		this.socketService.getTypingStatus().subscribe((typing: string) => {
+			this.typing = typing;
+		});
+
 		this.nickname = localStorage.getItem('chat_nickname') || '';
 
 		fetch('http://localhost:3000/messages')
@@ -59,15 +63,10 @@ export class AppComponent {
 		this.socketService.disconnect();
 	}
 
-    private messages: any = 
-	[
-	
-    ];
-
+    private messages: any = [];
 	public sound: any;
-
 	public userCount = '0';
-
+	public typing = '';
 	public message = '';
 	public nickname = '';
 	public joined = false;
@@ -86,12 +85,17 @@ export class AppComponent {
 
     public onKeyUp(event: any)
     {
+		this.socketService.emit('typing', this.nickname);
+		setTimeout(() => { this.socketService.emit('stop_typing', this.nickname); }, 10000);
+
         if(event.key == 'Enter')
 		{
-			if(this.message.trim().length > 0 || this.nickname.length > 0)
+			if(this.message.trim().length > 0 && this.nickname.length > 0)
 			{
 				this.socketService.emit('message', {sender: this.nickname, content: this.message});
+				alert(this.message);
 				this.message = '';
+				this.socketService.emit('stop_typing', this.nickname);
 			}
 		}
 

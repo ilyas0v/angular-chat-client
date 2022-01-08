@@ -10,6 +10,7 @@ export class SocketioService
 
 	public message$: BehaviorSubject<string> = new BehaviorSubject('');
 	public userCount$: BehaviorSubject<string> = new BehaviorSubject('');
+	public typing$: BehaviorSubject<string> = new BehaviorSubject('');
 
 	socket: any;
 
@@ -52,5 +53,13 @@ export class SocketioService
 		});
 
 		return this.userCount$.asObservable();
+	}
+
+	getTypingStatus = () => {
+		this.socket.on('typing', (typing: string) => {
+			this.typing$.next(typing);
+		});
+
+		return this.typing$.asObservable();
 	}
 }
