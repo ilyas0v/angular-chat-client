@@ -30,6 +30,14 @@ export class AppComponent {
 		});
 
 		this.nickname = localStorage.getItem('chat_nickname') || '';
+
+		fetch('http://localhost:3000/messages')
+			.then((res) => {
+				return res.json()
+			})
+			.then((res) => {
+				this.messages = res.messages;
+			});
 	}
 
 	ngOnDestroy()
