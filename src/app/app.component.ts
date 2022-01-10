@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Howl, Howler } from 'howler';
 import * as moment from 'moment';
+import { HttpService } from './services/http.service';
 import { SocketioService } from './services/socketio.service';
 
 @Component({
@@ -11,9 +12,19 @@ import { SocketioService } from './services/socketio.service';
 
 export class AppComponent {
 
-    title = 'ChatAppClient';
+    public title: string = 'ChatAppClient';
 
-	constructor(private socketService: SocketioService) { }
+	private messages: any = [];
+	public sound: any;
+	public userCount = '0';
+	public typing = '';
+	public message = '';
+	public nickname = '';
+	public joined = false;
+	public imagePreviewSrc: any = '';
+	public openedImageSrc: any = '';
+
+	constructor(private socketService: SocketioService, private httpService: HttpService) { }
 
 	ngOnInit()
 	{
@@ -41,13 +52,7 @@ export class AppComponent {
 
 		this.nickname = localStorage.getItem('chat_nickname') || '';
 
-		fetch('http://localhost:3000/messages')
-			.then((res) => {
-				return res.json()
-			})
-			.then((res) => {
-				this.messages = res.messages;
-			});
+		this.httpService.request('messages', 'GET', {}, (res: any) => { this.messages  = res.messages; });
 
 		this.sound = new Howl({ src: ['assets/sounds/new_message.mp3'], html5: true });
 
@@ -63,16 +68,6 @@ export class AppComponent {
 		this.socketService.disconnect();
 	}
 
-    private messages: any = [];
-	public sound: any;
-	public userCount = '0';
-	public typing = '';
-	public message = '';
-	public nickname = '';
-	public joined = false;
-	public imagePreviewSrc: any = '';
-	public openedImageSrc: any = '';
-
 	public getCurrentTime() : string
 	{
 		return (moment(new Date())).format('HH:mm')
@@ -86,15 +81,19 @@ export class AppComponent {
     public onKeyUp(event: any)
     {
 		this.socketService.emit('typing', this.nickname);
-		setTimeout(() => { this.socketService.emit('stop_typing', this.nickname); }, 10000);
+		setTimeout(() => { this.socketService.emit('stop_typing', this.nickname); }, 5000);
 
         if(event.key == 'Enter')
 		{
 			if(this.message.trim().length > 0 && this.nickname.length > 0)
 			{
-				this.socketService.emit('message', {sender: this.nickname, content: this.message});
-				this.message = '';
-				this.socketService.emit('stop_typing', this.nickname);
+				this.httpService.request('send-message', 
+										 'POST', 
+										 { sender: this.nickname, content: this.message }, 
+										 (res: any) => {
+											 this.message = '';
+											 this.socketService.emit('stop_typing', this.nickname);
+										 });
 			}
 		}
 
@@ -120,10 +119,13 @@ export class AppComponent {
 
 	public sendImageUpload(event: any): void
 	{
-		this.socketService.emit('message', { sender: this.nickname, content: this.imagePreviewSrc, isImage: true});
-
-		this.imagePreviewSrc = '';
-		this.scrollToBottom();
+		this.httpService.request('send-message', 
+								 'POST', 
+								 { sender: this.nickname, content: this.imagePreviewSrc, isImage: true }, 
+								 (res: any) => {
+									 this.imagePreviewSrc = '';
+									 this.scrollToBottom();
+								 });
 	}
 
 	public scrollToBottom(): void 
