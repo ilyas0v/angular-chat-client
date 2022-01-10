@@ -93,7 +93,6 @@ export class AppComponent {
 			if(this.message.trim().length > 0 && this.nickname.length > 0)
 			{
 				this.socketService.emit('message', {sender: this.nickname, content: this.message});
-				alert(this.message);
 				this.message = '';
 				this.socketService.emit('stop_typing', this.nickname);
 			}
