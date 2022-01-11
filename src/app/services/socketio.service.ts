@@ -19,10 +19,6 @@ export class SocketioService
 	setupSocketConnection()
 	{
 		this.socket = io('http://localhost:3000');
-
-		this.socket.on('message', (data: string) => {
-			console.log(data);
-		});
 	}
 
 	disconnect()
