@@ -38,6 +38,9 @@ body {
     border: 1px solid #ddd;
     background-color: #dad3cb;
     box-shadow: 1px 1px 7px  rgb(145, 145, 145);
+    background-image: url(https://i.pinimg.com/originals/8f/ba/cb/8fbacbd464e996966eb9d4a6b7a9c21e.jpg);
+    /* background-repeat: no-repeat; */
+    /* background-size: cover; */
 }
 
 .messages-top {
